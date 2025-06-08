@@ -34,3 +34,4 @@ docker service ls
 
 
 
+🔁 تست CI/CD خودکار
