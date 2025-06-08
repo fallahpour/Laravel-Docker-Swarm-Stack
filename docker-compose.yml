@@ -12,6 +12,8 @@ services:
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -20,17 +22,14 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
 
   laravel-app:
     image: laravel-app-image:latest
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "nc -z localhost 9000" ]
-#      interval: 10s
-#      timeout: 3s
-#      retries: 3
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,11 +38,11 @@ services:
     depends_on:
       - mysql
       - redis
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
-    networks:
-      - laravel
 
   nginx:
     image: nginx:alpine
@@ -54,11 +53,11 @@ services:
       - ./laravel-app:/var/www
     depends_on:
       - laravel-app
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
-    networks:
-      - laravel
 
   grafana:
     image: grafana/grafana
@@ -67,6 +66,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -77,6 +78,8 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -89,6 +92,8 @@ services:
       - portainer_data:/data
     ports:
       - "9000:9000"
+    networks:
+      - laravel
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -99,5 +104,6 @@ volumes:
 
 networks:
   laravel:
+    external: false
     driver: overlay
 
