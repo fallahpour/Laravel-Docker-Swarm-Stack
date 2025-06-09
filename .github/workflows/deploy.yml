@@ -1,4 +1,4 @@
-name: Laravel Docker Swarm Deploy
+name: Deploy to Remote Server
 
 on:
   push:
@@ -7,30 +7,27 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Server
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      - name: Set up SSH Key
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Add server to known_hosts
-        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+    - name: Deploy to Server
+      run: |
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          cd ~/www/Laravel-Docker-Swarm-Stack
+          git pull origin main
 
-      - name: Deploy to Remote Server
-        run: |
-          ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
-            cd ~/Laravel-Docker-Swarm-Stack
-            git pull origin main
-
-            docker stack rm laravel-stack
-            sleep 10
-
-            docker stack deploy -c docker-compose.yml laravel-stack
-          EOF
+          docker stack rm laravel-stack
+          sleep 10
+          docker stack deploy -c docker-compose.yml laravel-stack
+        EOF
 
