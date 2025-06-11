@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/Laravel-Docker-Swarm-Stack
+            cd ~/www/Laravel-Docker-Swarm-Stack
             git pull origin main
 
             docker stack deploy -c docker-compose.yml laravel-stack
