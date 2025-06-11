@@ -12,8 +12,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 # Copy app files
-COPY . .
-
+COPY ./laravel-app .
 # Ensure necessary Laravel dirs exist
 RUN mkdir -p storage \
     && mkdir -p bootstrap/cache
