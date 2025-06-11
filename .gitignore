@@ -1,9 +1,5 @@
 /vendor/
 /node_modules/
-/storage/*
-!/storage/app
-!/storage/framework
-!/storage/logs
 .env
 docker/mysql/*
 docker/redis/*

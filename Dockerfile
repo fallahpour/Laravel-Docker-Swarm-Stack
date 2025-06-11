@@ -14,9 +14,14 @@ WORKDIR /var/www
 # Copy app files
 COPY . .
 
+# Ensure necessary Laravel dirs exist
+RUN mkdir -p storage \
+    && mkdir -p bootstrap/cache
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage
+    && chmod -R 755 /var/www/storage \
+    && chmod -R 755 /var/www/bootstrap/cache
 
 # Laravel setup
 RUN composer install --no-dev --optimize-autoloader \
