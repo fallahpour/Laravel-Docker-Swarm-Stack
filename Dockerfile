@@ -13,21 +13,20 @@ WORKDIR /var/www
 
 # Copy app files
 COPY ./laravel-app .
-# Ensure necessary Laravel dirs exist
-RUN mkdir -p storage \
-    && mkdir -p bootstrap/cache
+
+# Create necessary directories
+RUN mkdir -p storage bootstrap/cache
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
-# Laravel setup
-RUN composer install --no-dev --optimize-autoloader \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
+# Copy and register entrypoint
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 EXPOSE 9000
-
-CMD ["php-fpm"]
